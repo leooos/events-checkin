@@ -18,7 +18,7 @@ def test_insert_event():
     print(response)
     
 def test_get_event_by_id():
-    event_id = "meu-uuid-e-nois"
+    event_id = "meu-uuid-e-nois!aaaaaaa"
     events_repository = EventsRepository()
     response = events_repository.get_event_by_id(event_id)
     print(response)
