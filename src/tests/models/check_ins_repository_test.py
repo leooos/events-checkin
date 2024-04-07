@@ -1,13 +1,20 @@
-import pytest
 from src.models.settings.connection import db_connection_handler
+from src.models.entities.check_ins import CheckIns
+from sqlalchemy.exc import IntegrityError
+from src.errors.error_types.http_conflict import HttpConflictError
 
-from src.models.repository.check_ins_repository import CheckInsRepository
-
-db_connection_handler.connect_to_db()
-
-# @pytest.mark.skip("novo registro em banco de dados")
-def test_insert_check_in():
-    attendee_id = "attendee-uuid"
-    check_in = CheckInsRepository()
-    response = check_in.insert_check_in(attendee_id)
-    print(response)
+class CheckInRepository:
+    def insert_check_in(self, attendee_id: str) -> str:
+        with db_connection_handler as database:
+            try:
+                check_in = (
+                    CheckIns(attendeeId=attendee_id)
+                )
+                database.session.add(check_in)
+                database.session.commit()
+                return attendee_id
+            except IntegrityError:
+                raise HttpConflictError('Check In ja cadastrado!')
+            except Exception as exception:
+                database.session.rollback()
+                raise exception
